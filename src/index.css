@@ -1,0 +1,47 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1 {
+    text-align: center;
+  }
+  
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .breed-select {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .loader,
+  .error {
+    display: none;
+    text-align: center;
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+  
+  .cat-info {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .cat-info img {
+    max-width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .cat-info p {
+    margin: 5px;
+  }
+      
