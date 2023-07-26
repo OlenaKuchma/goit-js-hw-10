@@ -42,6 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
     catInfo.style.display = "block";
     error.style.display = "none";
   }
+  function showErrorInfo() {
+    loader.style.display = "none";
+    breedSelect.style.display = "none";
+    catInfo.style.display = "none";
+    error.style.display = "block";
+  }
 
   function displayCatInfo(cat) {
     const catImage = document.createElement("img");
@@ -72,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     showLoader();
+    loader.style.display = "block";
 
     fetchCatByBreed(selectedBreedId)
       .then((cat) => {
@@ -79,8 +86,9 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .catch((error) => {
         console.error("Error fetching cat by breed:", error);
+        
+        showErrorInfo();
         error.style.display = "block";
-        showBreedSelect();
       });
   }
 
@@ -93,8 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch((error) => {
       console.error("Error fetching cat breeds:", error);
+      showErrorInfo();
       error.style.display = "block";
-      showBreedSelect();
+      
+     
     })
     .finally(() => {
       showBreedSelect();
