@@ -1,112 +1,65 @@
 import { fetchBreeds, fetchCatByBreed } from "./cat-api.js";
+import { selectCreateMarkUp, createMarkUp } from './modules.js';
+import SlimSelect from 'slim-select';
+import 'slim-select/dist/slimselect.css';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
-document.addEventListener("DOMContentLoaded", () => {
-  const breedSelect = document.querySelector(".breed-select");
-  const loader = document.querySelector(".loader");
-  const error = document.querySelector(".error");
-  const catInfo = document.querySelector(".cat-info");
 
-  function populateBreeds(breeds) {
-    breedSelect.innerHTML = ""; 
+const refs = {
+  select: document.querySelector('.breed-select'),
+  pLoader: document.querySelector('.loader'),
+  error: document.querySelector('.error'),
+  div: document.querySelector('.cat-info'),
+};
 
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "Select a breed";
-    breedSelect.appendChild(defaultOption);
+refs.pLoader.hidden = false;
 
-    breeds.forEach((breed) => {
-      const option = document.createElement("option");
-      option.value = breed.id;
-      option.textContent = breed.name;
-      breedSelect.appendChild(option);
+fetchBreeds()
+  .then(({ data }) => {
+    refs.select.innerHTML = selectCreateMarkUp(data);
+
+    new SlimSelect({
+      select: '#selectElement',
+      settings: {
+        allowDeselect: true,
+      },
     });
-  }
 
-  function showLoader() {
-    loader.style.display = "block";
-    breedSelect.style.display = "none";
-    catInfo.style.display = "none";
-    error.style.display = "none";
-  }
+    refs.select.hidden = false;
+    refs.error.hidden = true;
+  })
+  .catch(err => {
+    console.log(err.message);
 
-  function showBreedSelect() {
-    loader.style.display = "none";
-    breedSelect.style.display = "block";
-    catInfo.style.display = "none";
-    error.style.display = "none";
-  }
+    Notify.failure(`Oops! Something went wrong! Try reloading the page!`, 
+    {
+      position: 'center-center',
+    });
+  })
+  .finally(() => {
+    refs.pLoader.hidden = true;
+  });
 
-  function showCatInfo() {
-    loader.style.display = "none";
-    breedSelect.style.display = "none";
-    catInfo.style.display = "block";
-    error.style.display = "none";
-  }
-  function showErrorInfo() {
-    loader.style.display = "none";
-    breedSelect.style.display = "none";
-    catInfo.style.display = "none";
-    error.style.display = "block";
-  }
+refs.select.addEventListener('change', onSelect);
 
-  function displayCatInfo(cat) {
-    const catImage = document.createElement("img");
-    const breedName = document.createElement("p");
-    const breedDescription = document.createElement("p");
-    const breedTemperament = document.createElement("p");
 
-    catImage.src = cat.url;
-    breedName.textContent = "Breed: " + cat.breeds[0].name;
-    breedDescription.textContent = "Description: " + cat.breeds[0].description;
-    breedTemperament.textContent = "Temperament: " + cat.breeds[0].temperament;
+function onSelect(evt) {
+  const breedId = evt.currentTarget.value;
+  refs.pLoader.hidden = false;
+  refs.div.innerHTML = '';
 
-    catInfo.innerHTML = "";
-    catInfo.appendChild(catImage);
-    catInfo.appendChild(breedName);
-    catInfo.appendChild(breedDescription);
-    catInfo.appendChild(breedTemperament);
-    showCatInfo();
-    breedSelect.style.display = "block"; 
-  }
-
-  function handleBreedSelectChange() {
-    const selectedBreedId = breedSelect.value;
-
-    if (!selectedBreedId) {
-      showBreedSelect();
-      return;
-    }
-
-    showLoader();
-    loader.style.display = "block";
-
-    fetchCatByBreed(selectedBreedId)
-      .then((cat) => {
-        displayCatInfo(cat);
-      })
-      .catch((error) => {
-        console.error("Error fetching cat by breed:", error);
-        
-        showErrorInfo();
-        error.style.display = "block";
-      });
-  }
-
-  breedSelect.addEventListener("change", handleBreedSelectChange);
-
-  fetchBreeds()
-    .then((breeds) => {
-      populateBreeds(breeds);
-      showBreedSelect();
+  fetchCatByBreed(breedId)
+    .then(({ data }) => {
+      refs.div.innerHTML = createMarkUp(data);
     })
-    .catch((error) => {
-      console.error("Error fetching cat breeds:", error);
-      showErrorInfo();
-      error.style.display = "block";
-      
-     
+    .catch(err => {
+      console.log(err.message);
+
+      Notify.failure(`Oops! Something went wrong! Try reloading the page!`, {
+        position: 'center-center',
+      });
     })
     .finally(() => {
-      showBreedSelect();
+      refs.pLoader.hidden = true;
     });
-});
+}
